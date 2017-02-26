@@ -18,7 +18,12 @@ gameDisplay = pygame.display.set_mode((800, 600))
 pygame.display.set_caption("Slither")
 
 img = pygame.image.load('snake.png')
+apple = pygame.image.load('apple.png')
 
+icon = pygame.image.load('apple.png')
+pygame.display.set_icon(icon)
+
+AppleThickness = 30
 block_size = 20
 clock = pygame.time.Clock()
 
@@ -29,6 +34,15 @@ direction = "right"
 smallfont = pygame.font.SysFont("arial", 25)
 medfont = pygame.font.SysFont("arial", 50)
 largefont = pygame.font.SysFont("arial", 80)
+
+def score(score):
+	text = smallfont.render("Score: "+str(score), True, black)
+	gameDisplay.blit(text, [0, 0])
+
+def randAppleGen():
+	randAppleX = round(random.randrange(0, display_width-AppleThickness))#/10.0)*10.0
+	randAppleY = round(random.randrange(0, display_height-AppleThickness))#/10.0)*10.0
+	return randAppleX, randAppleY			
 
 def game_intro():
 
@@ -47,7 +61,7 @@ def game_intro():
 				if event.key == pygame.K_q:
 					pygame.quit()
 					quit()
-					
+
 		gameDisplay.fill(white)
 		message_to_screen("Welcome to Slither", 
 			green,
@@ -107,6 +121,8 @@ def message_to_screen(msg, color, y_displace=0, size="small"):
 # game loop
 def gameLoop():
 	global direction
+	direction = "right"
+
 	gameExit = False
 	gameOver = False
 
@@ -120,10 +136,7 @@ def gameLoop():
 
 	snakeLength = 1
 
-	AppleThickness = 30
-
-	randAppleX = round(random.randrange(0, display_width-block_size))#/10.0)*10.0
-	randAppleY = round(random.randrange(0, display_height-block_size))#/10.0)*10.0
+	randAppleX, randAppleY = randAppleGen()
 
 	while not gameExit:
 
@@ -173,7 +186,9 @@ def gameLoop():
 		lead_y += lead_y_change
 
 		gameDisplay.fill(white)
-		pygame.draw.rect(gameDisplay, red, [randAppleX, randAppleY, AppleThickness, AppleThickness])
+
+		# pygame.draw.rect(gameDisplay, red, [randAppleX, randAppleY, AppleThickness, AppleThickness])
+		gameDisplay.blit(apple, (randAppleX, randAppleY))
 		
 		snakeHead = []
 		snakeHead.append(lead_x)
@@ -188,6 +203,9 @@ def gameLoop():
 				gameOver = True
 
 		snake(block_size, snakelist)
+
+		score(snakeLength-1)
+		
 		pygame.display.update()
 
 		# # cross-over/collision-detection code 
@@ -199,9 +217,8 @@ def gameLoop():
 
 		if lead_x > randAppleX and lead_x < randAppleX + AppleThickness or lead_x + block_size > randAppleX and lead_x + block_size < randAppleX + AppleThickness:
 			if lead_y > randAppleY and lead_y < randAppleY + AppleThickness or lead_y + block_size > randAppleY and lead_y + block_size < randAppleY + AppleThickness:
-				randAppleX = round(random.randrange(0, display_width-block_size))#/10.0)*10.0
-		 		randAppleY = round(random.randrange(0, display_height-block_size))#/10.0)*10.0
-				snakeLength += 1
+					randAppleX, randAppleY = randAppleGen()
+					snakeLength += 1
 
 		clock.tick(FPS)
 
