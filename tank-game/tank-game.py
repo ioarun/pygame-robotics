@@ -8,9 +8,14 @@ pygame.init()
 
 white = (255, 255, 255)
 black = (0, 0, 0)
-red = (255, 0, 0)
+red = (200, 0, 0)
+light_red = (255, 0, 0)
+
 yellow = (200, 200, 0)
+light_yellow = (255, 255, 0)
+
 green = (0, 155, 0)
+light_green = (0, 255, 0)
 
 display_width = 800
 display_height = 600
@@ -97,13 +102,13 @@ def game_intro():
 		# 	black,
 		# 	180)
 
-		pygame.draw.rect(gameDisplay, green, (150, 500, 100, 50))
+
 		pygame.draw.rect(gameDisplay, yellow, (350, 500, 100, 50))
 		pygame.draw.rect(gameDisplay, red, (550, 500, 100, 50))
 
-		text_to_button("play", black, 150, 500, 100, 50)
-		text_to_button("controls", black, 350, 500, 100, 50)
-		text_to_button("quit", black, 550, 500, 100, 50)
+		button("play", 150, 500, 100, 50, green, light_green)
+		button("controls", 350, 500, 100, 50, yellow, light_yellow)
+		button("quit", 550, 500, 100, 50, red, light_red)
 
 		pygame.display.update()
 		clock.tick(15)
@@ -122,6 +127,16 @@ def text_to_button(msg, color, buttonx, buttony, buttonwidth, buttonheight,size 
 	textSurface, textRect = text_objects(msg, color, size)
 	textRect.center = ((buttonx+(buttonwidth/2)), buttony+(buttonheight/2))
 	gameDisplay.blit(textSurface, textRect)
+
+def button(text, x, y, width, height, inactive_color, active_color):
+	cur = pygame.mouse.get_pos()
+
+	if x + width > cur[0] > x and y + height > cur[1] > y:
+		pygame.draw.rect(gameDisplay, active_color, (x, y, width, height))
+	else:
+		pygame.draw.rect(gameDisplay, inactive_color, (x, y, width, height))
+
+	text_to_button(text, black, x, y, width, height)
 
 def message_to_screen(msg, color, y_displace=0, size="small"):
 	# screen_text = font.render(msg,True, color)
