@@ -145,11 +145,29 @@ def barrier(xlocation, randomHeight, barrier_width):
 def fireShell(xy, tankx, tanky, turPos):
 	fire = True
 
-	startingShell = xy
+	startingShell = list(xy) # from tuple to list conversion
 	print ("FIRE!", xy)
 
 	while fire:
-		fire = False
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				pygame.quit()
+				quit()
+
+		print startingShell[0], startingShell[1]
+		pygame.draw.circle(gameDisplay, red, (startingShell[0], startingShell[1]), 5)
+
+		startingShell[0] -= (12 - turPos)*2
+
+		# y = x**2
+		startingShell[1] += int((((startingShell[0] - xy[0])*0.01)**2) - (turPos + turPos/(12-turPos)))
+
+		if startingShell[1] > display_height:
+			fire = False
+
+		pygame.display.update()
+		clock.tick(60)
+
 
 def game_intro():
 
@@ -209,7 +227,7 @@ def text_to_button(msg, color, buttonx, buttony, buttonwidth, buttonheight,size 
 
 def button(text, x, y, width, height, inactive_color, active_color, action=None):
 	cur = pygame.mouse.get_pos()
-	# returns a tuple (l, c, r)
+	# returns a tuple (is_left?, is_center?, is_right?)
 	click = pygame.mouse.get_pressed()
 
 	if x + width > cur[0] > x and y + height > cur[1] > y:
@@ -223,7 +241,6 @@ def button(text, x, y, width, height, inactive_color, active_color, action=None)
 				game_controls()
 			if action == "play":
 				gameLoop()
-
 			if action == "main":
 				game_intro()
 			
