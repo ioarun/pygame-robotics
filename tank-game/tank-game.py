@@ -37,12 +37,24 @@ smallfont = pygame.font.SysFont("arial", 25)
 medfont = pygame.font.SysFont("arial", 50)
 largefont = pygame.font.SysFont("arial", 80)
 
-def tank(x, y):
+def tank(x, y, turPos):
 	x = int(x)
 	y = int(y)
+
+	possibleTurrets = [(x-27, y - 2), 
+						(x-26, y - 5),
+						(x-25, y - 8),
+						(x-23, y - 12),
+						(x-20, y - 14),
+						(x-18, y - 15),
+						(x-15, y - 17),
+						(x-13, y - 19),
+						(x-11, y-21)]
+
 	pygame.draw.circle(gameDisplay, black, (x, y), int(tankHeight/2))
 	pygame.draw.rect(gameDisplay, black, (x - tankWidth/2, y, tankWidth, tankHeight))
-	pygame.draw.line(gameDisplay, black, (x, y), (x - 10, y - 20), 5)
+	
+	pygame.draw.line(gameDisplay, black, (x, y), possibleTurrets[turPos], 5)
 
 	startX = 15
 	# add wheels
@@ -224,6 +236,9 @@ def gameLoop():
 
 	tankMove = 0
 
+	currentTurPos = 0
+	changeTur = 0
+
 	while not gameExit:
 
 		if gameOver == True:
@@ -255,21 +270,27 @@ def gameLoop():
 				elif event.key == pygame.K_RIGHT:
 					tankMove = +5
 				elif event.key == pygame.K_UP:
-					pass
+					changeTur = 1
 				elif event.key == pygame.K_DOWN:
-					pass
+					changeTur = -1
 				elif event.key == pygame.K_p:
 					pause()
 			elif event.type == pygame.KEYUP:
 				if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
 					tankMove = 0
 
+				if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
+					changeTur = 0
 
 		gameDisplay.fill(white)
 
 		mainTankX += tankMove
 
-		tank(mainTankX, mainTankY)
+		currentTurPos += changeTur
+
+		currentTurPos %= 8
+
+		tank(mainTankX, mainTankY, currentTurPos)
 
 		pygame.display.update()
 
