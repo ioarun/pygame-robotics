@@ -134,6 +134,10 @@ def game_controls():
 		clock.tick(15)
 
 
+
+def barrier(xlocation, randomHeight, barrier_width):
+	pygame.draw.rect(gameDisplay, black,[xlocation, display_height-randomHeight, barrier_width, randomHeight])
+
 def game_intro():
 
 	intro = True
@@ -239,6 +243,11 @@ def gameLoop():
 	currentTurPos = 0
 	changeTur = 0
 
+	xlocation = (display_width/2)+random.randint(-0.2*display_width,0.2*display_width)
+	randomHeight = random.randrange(display_height*0.1, display_height*0.6)
+
+	barrier_width = 50
+
 	while not gameExit:
 
 		if gameOver == True:
@@ -288,9 +297,18 @@ def gameLoop():
 
 		currentTurPos += changeTur
 
-		currentTurPos %= 8
+		# current turret possition should be between 0 and 8
+		if currentTurPos > 8:
+			currentTurPos = 8
+		elif currentTurPos < 0:
+			currentTurPos = 0
+
+		if mainTankX - (tankWidth/2)  < xlocation + barrier_width:
+			mainTankX += 5
 
 		tank(mainTankX, mainTankY, currentTurPos)
+
+		barrier(xlocation, randomHeight, barrier_width)
 
 		pygame.display.update()
 
