@@ -20,6 +20,13 @@ light_green = (0, 255, 0)
 display_width = 800
 display_height = 600
 
+# main tank position on screen
+mainTankX = display_width*0.9
+mainTankY = display_height*0.9
+tankHeight = 20
+tankWidth = 40
+
+
 gameDisplay = pygame.display.set_mode((800, 600))
 pygame.display.set_caption("Tanks")
 
@@ -32,6 +39,19 @@ direction = "right"
 smallfont = pygame.font.SysFont("arial", 25)
 medfont = pygame.font.SysFont("arial", 50)
 largefont = pygame.font.SysFont("arial", 80)
+
+def tank(x, y):
+	x = int(x)
+	y = int(y)
+	pygame.draw.circle(gameDisplay, black, (x, y), int(tankHeight/2))
+	pygame.draw.rect(gameDisplay, black, (x - tankWidth/2, y, tankWidth, tankHeight))
+	pygame.draw.line(gameDisplay, black, (x, y), (x - 10, y - 20), 5)
+
+	startX = 15
+	# add wheels
+	for i in range(7):
+		pygame.draw.circle(gameDisplay, black, (x - startX, y + tankHeight), 5)
+		startX -= 5
 
 def pause():
 	paused = True
@@ -62,7 +82,48 @@ def pause():
 
 def score(score):
 	text = smallfont.render("Score: "+str(score), True, black)
-	gameDisplay.blit(text, [0, 0])			
+	gameDisplay.blit(text, [0, 0])	
+
+
+def game_controls():
+
+	gcont = True
+
+	while gcont:
+
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				pygame.quit()
+				quit()
+
+
+		gameDisplay.fill(white)
+		message_to_screen("Controls", 
+			green,
+			-100,
+			"large")
+
+		message_to_screen("Fire: Spacebar",
+			black,
+			-30)
+		message_to_screen("Move Turret: Up and Down arrows",
+			black,
+			10)
+		message_to_screen("Move Tank: Left and Right arrows",
+			black,
+			50)
+
+		message_to_screen("Pause: P",
+			black,
+			90)
+
+		button("play", 150, 500, 100, 50, green, light_green, action="play")
+		button("Main", 350, 500, 100, 50, yellow, light_yellow, action="main")
+		button("quit", 550, 500, 100, 50, red, light_red, action="quit")
+
+		pygame.display.update()
+		clock.tick(15)
+
 
 def game_intro():
 
@@ -102,13 +163,9 @@ def game_intro():
 		# 	black,
 		# 	180)
 
-
-		pygame.draw.rect(gameDisplay, yellow, (350, 500, 100, 50))
-		pygame.draw.rect(gameDisplay, red, (550, 500, 100, 50))
-
-		button("play", 150, 500, 100, 50, green, light_green)
-		button("controls", 350, 500, 100, 50, yellow, light_yellow)
-		button("quit", 550, 500, 100, 50, red, light_red)
+		button("play", 150, 500, 100, 50, green, light_green, action="play")
+		button("controls", 350, 500, 100, 50, yellow, light_yellow, action="controls")
+		button("quit", 550, 500, 100, 50, red, light_red, action="quit")
 
 		pygame.display.update()
 		clock.tick(15)
@@ -128,11 +185,26 @@ def text_to_button(msg, color, buttonx, buttony, buttonwidth, buttonheight,size 
 	textRect.center = ((buttonx+(buttonwidth/2)), buttony+(buttonheight/2))
 	gameDisplay.blit(textSurface, textRect)
 
-def button(text, x, y, width, height, inactive_color, active_color):
+def button(text, x, y, width, height, inactive_color, active_color, action=None):
 	cur = pygame.mouse.get_pos()
+	# returns a tuple (l, c, r)
+	click = pygame.mouse.get_pressed()
 
 	if x + width > cur[0] > x and y + height > cur[1] > y:
 		pygame.draw.rect(gameDisplay, active_color, (x, y, width, height))
+		
+		if click[0] == 1 and action != None:
+			if action == "quit":
+				pygame.quit()
+				quit()
+			if action == "controls":
+				game_controls()
+			if action == "play":
+				gameLoop()
+
+			if action == "main":
+				game_intro()
+			
 	else:
 		pygame.draw.rect(gameDisplay, inactive_color, (x, y, width, height))
 
@@ -192,7 +264,7 @@ def gameLoop():
 
 
 		gameDisplay.fill(white)
-
+		tank(mainTankX, mainTankY)
 		pygame.display.update()
 
 		clock.tick(FPS)
