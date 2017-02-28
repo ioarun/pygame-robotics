@@ -9,6 +9,7 @@ pygame.init()
 white = (255, 255, 255)
 black = (0, 0, 0)
 red = (255, 0, 0)
+yellow = (200, 200, 0)
 green = (0, 155, 0)
 
 display_width = 800
@@ -16,15 +17,6 @@ display_height = 600
 
 gameDisplay = pygame.display.set_mode((800, 600))
 pygame.display.set_caption("Tanks")
-
-# img = pygame.image.load('snake.png')
-# apple = pygame.image.load('apple.png')
-
-# icon = pygame.image.load('apple.png')
-# pygame.display.set_icon(icon)
-
-# AppleThickness = 30
-# block_size = 20
 
 clock = pygame.time.Clock()
 
@@ -65,12 +57,7 @@ def pause():
 
 def score(score):
 	text = smallfont.render("Score: "+str(score), True, black)
-	gameDisplay.blit(text, [0, 0])
-
-def randAppleGen():
-	randAppleX = round(random.randrange(0, display_width-AppleThickness))#/10.0)*10.0
-	randAppleY = round(random.randrange(0, display_height-AppleThickness))#/10.0)*10.0
-	return randAppleX, randAppleY			
+	gameDisplay.blit(text, [0, 0])			
 
 def game_intro():
 
@@ -106,9 +93,17 @@ def game_intro():
 			black,
 			50)
 
-		message_to_screen("Press C to play, P to pause or Q to quit.",
-			black,
-			180)
+		# message_to_screen("Press C to play, P to pause or Q to quit.",
+		# 	black,
+		# 	180)
+
+		pygame.draw.rect(gameDisplay, green, (150, 500, 100, 50))
+		pygame.draw.rect(gameDisplay, yellow, (350, 500, 100, 50))
+		pygame.draw.rect(gameDisplay, red, (550, 500, 100, 50))
+
+		text_to_button("play", black, 150, 500, 100, 50)
+		text_to_button("controls", black, 350, 500, 100, 50)
+		text_to_button("quit", black, 550, 500, 100, 50)
 
 		pygame.display.update()
 		clock.tick(15)
@@ -123,6 +118,10 @@ def text_objects(text, color, size):
 
 	return textSurface, textSurface.get_rect()
 
+def text_to_button(msg, color, buttonx, buttony, buttonwidth, buttonheight,size = "small"):
+	textSurface, textRect = text_objects(msg, color, size)
+	textRect.center = ((buttonx+(buttonwidth/2)), buttony+(buttonheight/2))
+	gameDisplay.blit(textSurface, textRect)
 
 def message_to_screen(msg, color, y_displace=0, size="small"):
 	# screen_text = font.render(msg,True, color)
