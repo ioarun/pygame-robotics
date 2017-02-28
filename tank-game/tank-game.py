@@ -20,9 +20,6 @@ light_green = (0, 255, 0)
 display_width = 800
 display_height = 600
 
-# main tank position on screen
-mainTankX = display_width*0.9
-mainTankY = display_height*0.9
 tankHeight = 20
 tankWidth = 40
 
@@ -159,10 +156,6 @@ def game_intro():
 			black,
 			50)
 
-		# message_to_screen("Press C to play, P to pause or Q to quit.",
-		# 	black,
-		# 	180)
-
 		button("play", 150, 500, 100, 50, green, light_green, action="play")
 		button("controls", 350, 500, 100, 50, yellow, light_yellow, action="controls")
 		button("quit", 550, 500, 100, 50, red, light_red, action="quit")
@@ -225,6 +218,12 @@ def gameLoop():
 	gameExit = False
 	gameOver = False
 
+	# main tank position on screen
+	mainTankX = display_width*0.9
+	mainTankY = display_height*0.9
+
+	tankMove = 0
+
 	while not gameExit:
 
 		if gameOver == True:
@@ -252,19 +251,26 @@ def gameLoop():
 				gameExit = True
 			if event.type == pygame.KEYDOWN:
 				if event.key == pygame.K_LEFT:
-					pass
+					tankMove = -5
 				elif event.key == pygame.K_RIGHT:
-					pass
+					tankMove = +5
 				elif event.key == pygame.K_UP:
 					pass
 				elif event.key == pygame.K_DOWN:
 					pass
 				elif event.key == pygame.K_p:
 					pause()
+			elif event.type == pygame.KEYUP:
+				if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
+					tankMove = 0
 
 
 		gameDisplay.fill(white)
+
+		mainTankX += tankMove
+
 		tank(mainTankX, mainTankY)
+
 		pygame.display.update()
 
 		clock.tick(FPS)
