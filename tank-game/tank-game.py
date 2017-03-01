@@ -67,6 +67,34 @@ def tank(x, y, turPos):
 	# return turret position
 	return possibleTurrets[turPos]
 
+def enemy_tank(x, y, turPos):
+	x = int(x)
+	y = int(y)
+
+	possibleTurrets = [(x+27, y - 2), 
+						(x+26, y - 5),
+						(x+25, y - 8),
+						(x+23, y - 12),
+						(x+20, y - 14),
+						(x+18, y - 15),
+						(x+15, y - 17),
+						(x+13, y - 19),
+						(x+11, y-21)]
+
+	pygame.draw.circle(gameDisplay, black, (x, y), int(tankHeight/2))
+	pygame.draw.rect(gameDisplay, black, (x - tankWidth/2, y, tankWidth, tankHeight))
+	
+	pygame.draw.line(gameDisplay, black, (x, y), possibleTurrets[turPos], 5)
+
+	startX = 15
+	# add wheels
+	for i in range(7):
+		pygame.draw.circle(gameDisplay, black, (x - startX, y + tankHeight), 5)
+		startX -= 5
+
+	# return turret position
+	return possibleTurrets[turPos]
+
 def pause():
 	paused = True
 	message_to_screen("Paused",
@@ -346,6 +374,10 @@ def gameLoop():
 	mainTankX = display_width*0.9
 	mainTankY = display_height*0.9
 
+	# enemy tank position on screen
+	enemyTankX = display_width*0.1
+	enemyTankY = display_height*0.9
+
 	tankMove = 0
 
 	currentTurPos = 0
@@ -431,6 +463,7 @@ def gameLoop():
 
 		gameDisplay.fill(white)
 		gun = tank(mainTankX, mainTankY, currentTurPos)
+		enemy_gun = enemy_tank(enemyTankX, enemyTankY, 8)
 
 		fire_power += power_change
 
