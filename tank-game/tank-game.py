@@ -23,6 +23,8 @@ display_height = 600
 tankHeight = 20
 tankWidth = 40
 
+ground_height = 35
+
 
 gameDisplay = pygame.display.set_mode((800, 600))
 pygame.display.set_caption("Tanks")
@@ -213,9 +215,9 @@ def fireShell2(xy, tankx, tanky, turPos, gun_power, xlocation, barrier_width, ra
 		# y = x**2
 		startingShell[1] += int((((startingShell[0] - xy[0])*0.015/(gun_power/50.0))**2) - (turPos + turPos/(12-turPos)))
 
-		if startingShell[1] > display_height:
-			hit_x = int((startingShell[0]*display_height)/startingShell[1])
-			hit_y = int(display_height)
+		if startingShell[1] > display_height - ground_height:
+			hit_x = int((startingShell[0]*display_height-ground_height)/startingShell[1])
+			hit_y = int(display_height-ground_height)
 			print "Last shell:", startingShell[0], startingShell[1]
 			print "Impact:", hit_x, hit_y
 			explosion(hit_x, hit_y)
@@ -430,13 +432,15 @@ def gameLoop():
 		gameDisplay.fill(white)
 		gun = tank(mainTankX, mainTankY, currentTurPos)
 
-
 		fire_power += power_change
 
 		# display the fire_power
 		power(fire_power)
 
 		barrier(xlocation, randomHeight, barrier_width)
+
+		# add ground
+		gameDisplay.fill(green, rect=[0, display_height - ground_height, display_width, ground_height])
 
 		pygame.display.update()
 
