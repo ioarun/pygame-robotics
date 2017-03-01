@@ -188,7 +188,12 @@ def fireShell2(xy, tankx, tanky, turPos, gun_power):
 		startingShell[1] += int((((startingShell[0] - xy[0])*0.015/(gun_power/50.0))**2) - (turPos + turPos/(12-turPos)))
 
 		if startingShell[1] > display_height:
+			hit_x = int((startingShell[0]*display_height)/startingShell[1])
+			hit_y = int(display_height)
+			print "Last shell:", startingShell[0], startingShell[1]
+			print "Impact:", hit_x, hit_y
 			fire = False
+
 
 		pygame.display.update()
 		clock.tick(60)
