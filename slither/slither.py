@@ -20,7 +20,7 @@ pygame.display.set_caption("Slither")
 img = pygame.image.load('snake.png')
 apple = pygame.image.load('apple.png')
 
-eat_sound = pygame.mixer.Sound("eat.wav")
+eat_sound = pygame.mixer.Sound("eat2.wav")
 
 icon = pygame.image.load('apple.png')
 pygame.display.set_icon(icon)
