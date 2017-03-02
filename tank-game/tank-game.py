@@ -270,6 +270,102 @@ def fireShell2(xy, tankx, tanky, turPos, gun_power, xlocation, barrier_width, ra
 		clock.tick(60)
 
 
+def e_fireShell(xy, tankx, tanky, turPos, gun_power, xlocation, barrier_width, randomHeight, ptankX, ptankY):
+	
+	currentPower = 1
+	power_found = False
+
+	while not power_found:
+		currentPower += 1
+		if currentPower > 100:
+			power_found = True
+		fire = True
+
+		startingShell = list(xy) # from tuple to list conversion (just one element)
+		# print ("FIRE!", xy)
+		while fire:
+			for event in pygame.event.get():
+				if event.type == pygame.QUIT:
+					pygame.quit()
+					quit()
+
+			# print startingShell[0], startingShell[1]
+			# pygame.draw.circle(gameDisplay, red, (startingShell[0], startingShell[1]), 5)
+
+			startingShell[0] += (12 - turPos)*2
+
+			# y = x**2
+			startingShell[1] += int((((startingShell[0] - xy[0])*0.015/(currentPower/50.0))**2) - (turPos + turPos/(12-turPos)))
+
+			if startingShell[1] > display_height - ground_height:
+				hit_x = int((startingShell[0]*display_height-ground_height)/startingShell[1])
+				hit_y = int(display_height-ground_height)
+				# explosion(hit_x, hit_y)
+				# if found tank
+				if ptankX + 15 > hit_x > ptankX - 15:
+					print "Target acquired!"
+					power_found = True
+				fire = False
+
+
+			check_x_1 = startingShell[0] <= xlocation +  barrier_width
+			check_x_2 = startingShell[0] >= xlocation
+
+			check_y_1 = startingShell[1] <= display_height 
+			check_y_2 = startingShell[1] >= display_height -randomHeight 
+
+			if check_x_1 and check_x_2 and check_y_1 and check_y_2:
+				hit_x = int(startingShell[0])
+				hit_y = int(startingShell[1])
+				# explosion(hit_x, hit_y)
+				fire = False
+
+
+	fire = True
+
+	startingShell = list(xy) # from tuple to list conversion
+	# print ("FIRE!", xy)
+	while fire:
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				pygame.quit()
+				quit()
+
+		# print startingShell[0], startingShell[1]
+		pygame.draw.circle(gameDisplay, red, (startingShell[0], startingShell[1]), 5)
+
+		startingShell[0] += (12 - turPos)*2
+
+		# y = x**2
+		startingShell[1] += int((((startingShell[0] - xy[0])*0.015/(currentPower/50.0))**2) - (turPos + turPos/(12-turPos)))
+
+		if startingShell[1] > display_height - ground_height:
+			hit_x = int((startingShell[0]*display_height-ground_height)/startingShell[1])
+			hit_y = int(display_height-ground_height)
+			print "Last shell:", startingShell[0], startingShell[1]
+			print "Impact:", hit_x, hit_y
+			explosion(hit_x, hit_y)
+			fire = False
+
+
+		check_x_1 = startingShell[0] <= xlocation +  barrier_width
+		check_x_2 = startingShell[0] >= xlocation
+
+		check_y_1 = startingShell[1] <= display_height 
+		check_y_2 = startingShell[1] >= display_height -randomHeight 
+
+		if check_x_1 and check_x_2 and check_y_1 and check_y_2:
+			hit_x = int(startingShell[0])
+			hit_y = int(startingShell[1])
+			print "Last shell:", startingShell[0], startingShell[1]
+			print "Impact:", hit_x, hit_y
+			explosion(hit_x, hit_y)
+			fire = False
+
+		pygame.display.update()
+		clock.tick(60)
+
+
 
 def power(level):
 	text = smallfont.render("Power: "+str(level)+"%",True, black)
@@ -431,6 +527,7 @@ def gameLoop():
 					# argument = turret location
 					# fireShell(gun, mainTankX, mainTankY, currentTurPos, fire_power)
 					fireShell2(gun, mainTankX, mainTankY, currentTurPos, fire_power, xlocation, barrier_width, randomHeight)
+					e_fireShell(enemy_gun, enemyTankX, enemyTankY, 8, 50, xlocation, barrier_width, randomHeight,mainTankX, mainTankY )
 
 				elif event.key == pygame.K_a:
 					power_change = -1
