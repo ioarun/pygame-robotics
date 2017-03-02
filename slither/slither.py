@@ -20,6 +20,8 @@ pygame.display.set_caption("Slither")
 img = pygame.image.load('snake.png')
 apple = pygame.image.load('apple.png')
 
+eat_sound = pygame.mixer.Sound("eat.wav")
+
 icon = pygame.image.load('apple.png')
 pygame.display.set_icon(icon)
 
@@ -249,6 +251,7 @@ def gameLoop():
 		if lead_x > randAppleX and lead_x < randAppleX + AppleThickness or lead_x + block_size > randAppleX and lead_x + block_size < randAppleX + AppleThickness:
 			if lead_y > randAppleY and lead_y < randAppleY + AppleThickness or lead_y + block_size > randAppleY and lead_y + block_size < randAppleY + AppleThickness:
 					randAppleX, randAppleY = randAppleGen()
+					pygame.mixer.Sound.play(eat_sound)
 					snakeLength += 1
 
 		clock.tick(FPS)
