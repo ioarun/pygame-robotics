@@ -32,6 +32,10 @@ pygame.display.set_caption("Tanks")
 fire_sound = pygame.mixer.Sound("gunshot2.wav")
 explosion_sound = pygame.mixer.Sound("explosion.wav")
 
+pygame.mixer.music.load("shape_of_you_ed_sheeran.mp3")
+# loop forever
+pygame.mixer.music.play(-1)
+
 clock = pygame.time.Clock()
 
 FPS = 10
