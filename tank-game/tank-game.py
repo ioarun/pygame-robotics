@@ -29,6 +29,9 @@ ground_height = 35
 gameDisplay = pygame.display.set_mode((800, 600))
 pygame.display.set_caption("Tanks")
 
+fire_sound = pygame.mixer.Sound("gunshot2.wav")
+explosion_sound = pygame.mixer.Sound("explosion.wav")
+
 clock = pygame.time.Clock()
 
 FPS = 10
@@ -172,6 +175,7 @@ def barrier(xlocation, randomHeight, barrier_width):
 	pygame.draw.rect(gameDisplay, black,[xlocation, display_height-randomHeight, barrier_width, randomHeight])
 
 def explosion(x, y, size=50):
+	pygame.mixer.Sound.play(explosion_sound)
 	explode = True
 
 	while explode:
@@ -225,6 +229,9 @@ def fireShell(xy, tankx, tanky, turPos, gun_power):
 		clock.tick(60)
 
 def fireShell2(xy, tankx, tanky, turPos, gun_power, xlocation, barrier_width, randomHeight, enemyTankX, enemyTankY):
+	
+	pygame.mixer.Sound.play(fire_sound)
+
 	fire = True
 	damage = 0
 	startingShell = list(xy) # from tuple to list conversion
@@ -291,6 +298,8 @@ def fireShell2(xy, tankx, tanky, turPos, gun_power, xlocation, barrier_width, ra
 
 def e_fireShell(xy, tankx, tanky, turPos, gun_power, xlocation, barrier_width, randomHeight, ptankX, ptankY):
 	
+	pygame.mixer.Sound.play(fire_sound)
+
 	damage = 0 
 
 	currentPower = 1
