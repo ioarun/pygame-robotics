@@ -63,10 +63,15 @@ def Gaussian(mu, sigma, x):
 
 def repeat(car_x, car_y, landmarks_loc, particles, particle_size):
 	time.sleep(1)
+	screen.fill(white)
+	landmarks(landmarks_loc)
 
 	# move the car
 	car_x += 10
-	car_y += 5
+	car_y -= 10
+
+	car_x %= world_size
+	car_y %= world_size
 
 	car(car_x, car_y)
 
@@ -83,8 +88,10 @@ def repeat(car_x, car_y, landmarks_loc, particles, particle_size):
 	# move particles
 	for i in range(1000):
 		particles[i][0] += 10
-		particles[i][1] += 5
-		pygame.draw.circle(screen, red, (particles[i][0], particles[i][1]), 2)
+		particles[i][1] -= 10
+		particles[i][0] %= world_size
+		particles[i][1] %= world_size
+		pygame.draw.circle(screen, red, (particles[i][0] + car_length/2, particles[i][1] + car_width/2), 2)
 
 	# assign weights to each particle according to measurement prob.
 	weights = []
@@ -107,13 +114,12 @@ def repeat(car_x, car_y, landmarks_loc, particles, particle_size):
 	    p.append(particles[index])
 
 	particles = p
-
-	pygame.display.update()
-	time.sleep(1)
-
+	
 	for i in range(1000):
 		
-		pygame.draw.circle(screen, green, (particles[i][0], particles[i][1]), particle_size)
+		pygame.draw.circle(screen, red, (particles[i][0] + car_length/2, particles[i][1] + car_width/2), particle_size)
+
+	pygame.display.update()
 
 	return car_x, car_y, landmarks_loc, particles
 
@@ -134,7 +140,7 @@ def main_loop():
 	for i in range(1000):
 		p_x = random.randint(10, world_size)
 		p_y = random.randint(10, world_size)
-		pygame.draw.circle(screen, red, (p_x, p_y), 2)
+		pygame.draw.circle(screen, red, (p_x , p_y), 2)
 		particles.append([p_x, p_y])
 
 	landmarks_loc = []
@@ -149,67 +155,11 @@ def main_loop():
 
 	pygame.display.update()
 
-	time.sleep(1)
+	car_x, car_y, landmarks_loc, particles = repeat(car_x, car_y, landmarks_loc, particles, 2)
+	car_x, car_y, landmarks_loc, particles = repeat(car_x, car_y , landmarks_loc, particles, 8)
+	car_x, car_y, landmarks_loc, particles = repeat(car_x, car_y, landmarks_loc, particles, 12)
+	car_x, car_y, landmarks_loc, particles = repeat(car_x, car_y, landmarks_loc, particles, 12)
 
-	# move the car
-	car_x += 10
-	car_y += 5
-
-	car(car_x, car_y)
-
-	measurements = sense(car_x, car_y, landmarks_loc, noise=True)
-
-	# create 1000 random particles and draw them on screen
-	# particles = []
-	# for i in range(1000):
-	# 	p_x = random.randint(10, world_size)
-	# 	p_y = random.randint(10, world_size)
-	# 	pygame.draw.circle(screen, red, (p_x, p_y), 2)
-	# 	particles.append([p_x, p_y])
-
-	# move particles
-	for i in range(1000):
-		particles[i][0] += 10
-		particles[i][1] += 5
-		pygame.draw.circle(screen, red, (particles[i][0], particles[i][1]), 2)
-
-	# assign weights to each particle according to measurement prob.
-	weights = []
-	for i in range(1000):
-		weights.append(measurement_prob(particles[i][0], particles[i][1], landmarks_loc, measurements))
-
-	# resampling
-	p = []
-	# chose index from a uniform distribution
-	index = int(random.random() * 1000)
-	beta = 0.0
-	mw = max(weights)
-	for i in range(1000):
-	    # randomly chose between 0 and 2*w max
-	    beta += random.random()*2*mw
-	    while (weights[index] < beta):
-	        beta -= weights[index]
-	        index = (index + 1) % 1000
-	    # select current index
-	    p.append(particles[index])
-
-	particles = p
-
-	pygame.display.update()
-	time.sleep(1)
-
-	for i in range(1000):
-		
-		pygame.draw.circle(screen, green, (particles[i][0], particles[i][1]), 4)
-
-
-
-	car_x, car_y, landmarks_loc, particles = repeat(car_x, car_y, landmarks_loc, particles, 8)
-	car_x, car_y, landmarks_loc, particles = repeat(car_x + 5, car_y, landmarks_loc, particles, 12)
-	car_x, car_y, landmarks_loc, particles = repeat(car_x + 5, car_y, landmarks_loc, particles, 16)
-	car_x, car_y, landmarks_loc, particles = repeat(car_x + 5, car_y, landmarks_loc, particles, 20)
-	car_x, car_y, landmarks_loc, particles = repeat(car_x + 5, car_y, landmarks_loc, particles, 16)
-	car_x, car_y, landmarks_loc, particles = repeat(car_x + 5, car_y, landmarks_loc, particles, 20)
 
 	while not gameExit:
 
