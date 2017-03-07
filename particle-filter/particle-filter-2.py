@@ -38,7 +38,7 @@ class robot:
 		self.orientation = random.random() * 2.0 * pi
 		self.forward_noise = 0.0
 		self.turn_noise	= 0.0
-		self.sense_noise = 0.0
+		self.sense_noise = 0.0 # or bearing_noise
 	
 	def set(self, x, y, orientation):
 		if x >= world_size or x < 0:
@@ -78,24 +78,35 @@ class robot:
 		temp.set_noise(self.forward_noise, self.turn_noise, self.sense_noise)
 		return temp
 
-	def sense(self, landmarks_loc, add_noise=False):
+	def sense(self, landmarks, add_noise=False):
 		Z = []
-		for i in range(len(landmarks_loc)):
-			dist = sqrt((self.x - landmarks_loc[i][0])**2 + ((self.y - landmarks_loc[i][1])**2))
-			if add_noise:
-				dist += random.gauss(0.0, self.sense_noise)
+		for i in range(len(landmarks)):
+		    bearing_angle = atan2(landmarks[i][0] - self.y, landmarks[i][1] - self.x) - self.orientation
+		    
+		    if add_noise:
+		        bearing_angle += random.gauss(0.0, self.bearing_noise)
 
-			Z.append(dist)
+		    # avoid angles greater than 2pi
+		    bearing_angle %= 2*pi
+		    Z.append(bearing_angle)
+		    
+		return Z # Return vector Z of 4 bearings.
 
-		return Z
+	def measurement_prob(self, measurements, landmarks):
+		# calculate the correct measurement
+		predicted_measurements = self.sense(landmarks) 
 
-	def measurement_prob(self, measurements, landmarks_loc):
-		prob = 1.0;
-		for i in range(len(landmarks_loc)):
-		    dist = sqrt((self.x - landmarks_loc[i][0]) ** 2 + (self.y - landmarks_loc[i][1]) ** 2)
-		    # print abs(dist - measurements[i])
-		    prob *= self.Gaussian(dist, self.sense_noise, measurements[i])
-		return prob
+		# compute errors
+		error = 1.0
+		for i in range(len(measurements)):
+		    error_bearing = abs(measurements[i] - predicted_measurements[i])
+		    error_bearing = (error_bearing + pi) % (2.0 * pi) - pi # truncate
+		    
+		    # update Gaussian
+		    error *= (exp(- (error_bearing ** 2) / (self.sense_noise ** 2) / 2.0) /  
+		              sqrt(2.0 * pi * (self.sense_noise ** 2)))
+
+		return error
 
 
 	def Gaussian(self, mu, sigma, x):
@@ -113,7 +124,7 @@ def draw_robot(car):
 	# print orientation
 	# # in degrees
 	# print orientation*180/pi
-	pygame.draw.circle(screen, blue, (int(x), int(y)), 5)
+	# pygame.draw.circle(screen, blue, (int(x), int(y)), 5)
 	# rect = pygame.draw.polygon(screen, blue, ((x-car_length/2,y-car_width/2),(x+car_length/2,y-car_width/2), \
 	# 	(x + car_length/2, y + car_width/2), (x-car_length/2, y+car_width/2)))
 
@@ -122,13 +133,15 @@ def draw_particles(particles):
 		x = particles[i].x
 		y = particles[i].y
 		orientation = particles[i].orientation
-		pygame.draw.circle(screen, red, (int(x), int(y)), 2)
+		pygame.draw.circle(screen, green, (int(x), int(y)), 5)
 
 	
-landmarks_loc  = [[200, 200], [600, 600], [200, 600], [600, 200], [200, 300], [300, 200], [500, 200]]
+landmarks_loc  = [[200, 200], [600, 600], [200, 600], [600, 200], [200, 300], [300, 200], [500, 200],\
+					[200, 200], [200, 500], [300, 600],[500, 600], [600, 500], [600, 300], [400, 200],\
+					[200, 400], [400, 600], [600, 400]]
 
 car = robot()
-#car.set_noise(0.1, 0.01, 5.0)
+# car.set_noise(0.1, 0.1, 0.1)
 
 orientation = 0
 #in radians
@@ -144,7 +157,8 @@ particles = []
 # create particles
 for i in range(1000):
 	particle = robot()
-	particle.set_noise(0.1, 0.00001, 5.0)
+	# particle.orientation = orientation
+	particle.set_noise(0.001, 0.1, 0.1)
 	particles.append(particle)
 
 while exit == False:
@@ -170,9 +184,9 @@ while exit == False:
 			elif event.key == pygame.K_RIGHT:
 				delta_orient = -0.0175
 			elif event.key == pygame.K_UP:
-				delta_forward = 5
+				delta_forward = 2
 			elif event.key == pygame.K_DOWN:
-				delta_forward = -5
+				delta_forward = -2
 		elif event.type == pygame.KEYUP:
 			if event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT or event.key == pygame.K_UP \
 			or event.key == pygame.K_DOWN:
@@ -183,6 +197,7 @@ while exit == False:
 	particles2 = []
 	for particle in particles:
 		# print "before :",particle.x, particle.y, particle.orientation
+		# particle.orientation = car.orientation
 		particles2.append(particle.move(delta_orient, delta_forward))
 		# print "afer :",particle.x, particle.y, particle.orientation
 
@@ -206,5 +221,3 @@ while exit == False:
 		    index = (index + 1) % 1000
 		p.append(particles[index])
 	particles = deepcopy(p)
-	
-
