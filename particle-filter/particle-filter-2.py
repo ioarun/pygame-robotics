@@ -74,6 +74,7 @@ class robot:
 		self.y %= world_size
 
 		temp = robot()
+		temp.set_noise(0.001, 0.1, 0.1)
 		temp.set(self.x, self.y, self.orientation)
 		temp.set_noise(self.forward_noise, self.turn_noise, self.sense_noise)
 		return temp

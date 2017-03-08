@@ -86,8 +86,6 @@ class GridWorld:
 		if shape == "circle":
 			pygame.draw.circle(self.screen, self.RED, (int(origin[1]+row*(center[1])), int(origin[0]+col*(center[0]))), size)
 
-
-
 	def draw_path(self, path):
 		origin = [0+1*self.MARGIN+22.5,0+1*self.MARGIN+22.5]
 		col = self.MARGIN + self.WIDTH

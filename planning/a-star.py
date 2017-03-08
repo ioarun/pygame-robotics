@@ -82,7 +82,6 @@ def run_a_star(grid, heuristics, init, goal, cost):
 		for a in range(len(delta)):
 			x2 = x + delta[a][0]
 			y2 = y + delta[a][1]
-		
 			if check_valid([x2, y2], grid):
 				g2 = g + cost
 				if [x2, y2] not in visited:
