@@ -18,7 +18,7 @@ black = (0, 0, 0)
 car_length = 400
 car_width = 200
 
-car_img = pygame.image.load("car60_40.png")
+car_img = pygame.image.load("car400_200.png")
 
 origin = (display_width/2, display_height/2)
 
@@ -85,14 +85,15 @@ class robot:
 
 
 def draw_robot(robot):
-	car_x = robot.x - 30
-	car_y = robot.y - 20
-	orientation = robot.orientation
-	img = pygame.transform.rotate(car_img, 0)
-	img = pygame.transform.rotate(car_img, orientation*180/pi)
-	screen.blit(img, (car_x, car_y))
+	car_x = robot.x 
+	car_y = robot.y 
+	# orientation = robot.orientation
+	# img = pygame.transform.rotate(car_img, 0)
+	# img = pygame.transform.rotate(car_img, orientation*180/pi)
+	# screen.blit(img, (car_x, car_y))
 
-	# pygame.draw.rect(screen, yellow, (car_x, car_y, 400, 200))
+	rect = pygame.draw.polygon(screen, yellow, ((car_x-car_length/2,car_y-car_width/2),(car_x+car_length/2,car_y-car_width/2), \
+		(car_x + car_length/2, car_y + car_width/2), (car_x-car_length/2, car_y+car_width/2)))
 
 	# draw wheels 	
 	# wheel_l = 100
@@ -102,9 +103,8 @@ def draw_robot(robot):
 	# print orientation
 	# # in degrees
 	# print orientation*180/pi
-	# pygame.draw.circle(screen, blue, (int(robot.x), int(robot.y)), 5)
-	# rect = pygame.draw.polygon(screen, blue, ((car_x-car_length/2,car_y-car_width/2),(car_x+car_length/2,car_y-car_width/2), \
-	# 	(car_x + car_length/2, car_y + car_width/2), (car_x-car_length/2, car_y+car_width/2)))
+	pygame.draw.circle(screen, blue, (int(car_x), int(car_y)), 5)
+	
 	
 landmarks_loc  = [[200, 200], [600, 600], [200, 600], [600, 200]]
 
@@ -124,12 +124,14 @@ delta_forward = 0.0
 while exit == False:
 
 	screen.fill(white)
-	pygame.draw.line(screen, green, (display_width/2, 0), (display_width/2, display_height), 1)
-	pygame.draw.line(screen, black, (0, display_height/2), (display_width, display_height/2), 1)
 	for i in range(len(landmarks_loc)):
 		pygame.draw.circle(screen, blue, landmarks_loc[i], 20)
 
 	draw_robot(robot)
+
+	pygame.draw.line(screen, green, (display_width/2, 0), (display_width/2, display_height), 1)
+	pygame.draw.line(screen, black, (0, display_height/2), (display_width, display_height/2), 1)
+
 	pygame.display.update()
 	clock.tick(60)
 
