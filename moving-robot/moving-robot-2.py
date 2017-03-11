@@ -84,6 +84,34 @@ class robot:
 		return Z
 
 
+# def get_points(center, radius, mouse_position):
+#     # calculate the normalized vector pointing from center to mouse_position
+#     length = math.hypot(mouse_position[0] - center[0], mouse_position[1] - center[1])
+#     # (note we only need the x component since y falls 
+#     # out of the dot product, so we won't bother to calculate y)
+#     angle_vector_x = (mouse_position[0] - center[0]) / length
+
+#     # calculate the angle between that vector and the x axis vector (aka <1,0> or i)
+#     angle = math.acos(angle_vector_x)
+
+#     # list of un-rotated point locations
+#     triangle = [0, (3 * math.pi / 4), (5 * math.pi / 4)]
+
+#     result = list()
+#     for t in triangle:
+#         # apply the circle formula
+#         x = center[0] + radius * math.cos(t + angle)
+#         y = center[1] + radius * math.sin(t + angle)
+#         result.append((x, y))
+
+#     return result
+
+def RotatePoint(c, p, r):
+    x = c[0]*cos(r)-c[0]+c[1]*sin(r)+p[0]*cos(r)+p[1]*sin(r)
+    y = -c[0]*sin(r)+c[1]*cos(r)-c[1]-p[0]*sin(r)+p[1]*cos(r)
+    return x, y
+
+
 def draw_robot(robot):
 	car_x = robot.x 
 	car_y = robot.y 
@@ -92,8 +120,38 @@ def draw_robot(robot):
 	# img = pygame.transform.rotate(car_img, orientation*180/pi)
 	# screen.blit(img, (car_x, car_y))
 
-	rect = pygame.draw.polygon(screen, yellow, ((car_x-car_length/2,car_y-car_width/2),(car_x+car_length/2,car_y-car_width/2), \
-		(car_x + car_length/2, car_y + car_width/2), (car_x-car_length/2, car_y+car_width/2)))
+	p1 = [car_x-car_length/2,car_y-car_width/2]
+	p2 = [car_x+car_length/2,car_y-car_width/2]
+	p3 = [car_x+car_length/2,car_y+car_width/2]
+	p4 = [car_x-car_length/2,car_y+car_width/2]
+
+	# distance of each corner from center of the rectangle
+	# length = (abs(p2[0] - car_x) + abs(p2[1] - car_y))
+	length = sqrt((p1[0] - car_x)**2 + (p1[1] - car_x)**2)
+
+	# p2[0] = car_x + int(length)*cos(radians(30))
+	# p2[1] = car_y + int(length)*sin(radians(30))
+
+	p2[0],p2[1] = RotatePoint([car_x, car_y], p2, length)
+	p2[0] = x
+	p2[1] = y
+
+	# p1[0] = car_x - int(length)*cos(30)
+	# p1[1] = car_y + int(length)*sin(30)
+
+	# p3[0] = car_x + int(length)*cos(30)
+	# p3[1] = car_y + int(length)*sin(30)
+
+	# p4[0] = car_x + int(length)*cos(30)
+	# p4[1] = car_y + int(length)*sin(30)
+
+	# p3[0] += length*cos(30)
+	# p3[1] -= length*sin(30)
+
+	# p4[0] += length*cos(30)
+	# p4[1] -= length*sin(30)
+
+	rect = pygame.draw.polygon(screen, yellow, (p1,p2,p3,p4))
 
 	# draw wheels 	
 	# wheel_l = 100
@@ -103,6 +161,7 @@ def draw_robot(robot):
 	# print orientation
 	# # in degrees
 	# print orientation*180/pi
+
 	pygame.draw.circle(screen, blue, (int(car_x), int(car_y)), 5)
 	
 	
@@ -154,4 +213,4 @@ while exit == False:
 				delta_forward = 0.0
 
 	robot.move(delta_orient, delta_forward)
-	print robot.sense(landmarks_loc)
+	# print robot.sense(landmarks_loc)
