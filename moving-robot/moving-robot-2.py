@@ -83,7 +83,6 @@ class robot:
 
 		return Z
 
-
 # def get_points(center, radius, mouse_position):
 #     # calculate the normalized vector pointing from center to mouse_position
 #     length = math.hypot(mouse_position[0] - center[0], mouse_position[1] - center[1])
@@ -115,7 +114,7 @@ def RotatePoint(c, p, r):
 def draw_robot(robot):
 	car_x = robot.x 
 	car_y = robot.y 
-	# orientation = robot.orientation
+	orientation = robot.orientation
 	# img = pygame.transform.rotate(car_img, 0)
 	# img = pygame.transform.rotate(car_img, orientation*180/pi)
 	# screen.blit(img, (car_x, car_y))
@@ -127,23 +126,33 @@ def draw_robot(robot):
 
 	# distance of each corner from center of the rectangle
 	# length = (abs(p2[0] - car_x) + abs(p2[1] - car_y))
-	length = sqrt((p1[0] - car_x)**2 + (p1[1] - car_x)**2)
+	length = sqrt((p1[0] - car_x)**2 + (p1[1] - car_y)**2)
 
-	# p2[0] = car_x + int(length)*cos(radians(30))
-	# p2[1] = car_y + int(length)*sin(radians(30))
+	angle = atan2(car_y - p2[1], p2[0] - car_x)
+	angle %= 2*pi 
+	p2[0] = car_x + int(length)*cos((radians(30)+angle)%2*pi)
+	p2[1] = car_y - int(length)*sin((radians(30)+angle)%2*pi)
+	pygame.draw.circle(screen, blue, (int(p2[0]), int(p2[1])), 5)
+	
+	angle = atan2(car_y - p1[1], p1[0] - car_x)
+	angle %= 2*pi 
+	p1[0] = car_x + int(length)*cos((radians(30)+angle)%2*pi)
+	p1[1] = car_y - int(length)*sin((radians(30)+angle)%2*pi)
 
-	p2[0],p2[1] = RotatePoint([car_x, car_y], p2, length)
-	p2[0] = x
-	p2[1] = y
+	pygame.draw.circle(screen, blue, (int(p1[0]), int(p1[1])), 5)
 
-	# p1[0] = car_x - int(length)*cos(30)
-	# p1[1] = car_y + int(length)*sin(30)
+	angle = atan2(car_y - p3[1], p3[0] - car_x)
+	angle %= 2*pi 
+	print degrees(angle)
+	p3[0] = car_x + int(length)*cos((radians(30)+angle)%2*pi)
+	p3[1] = car_y - int(length)*sin((radians(30)+angle)%2*pi)
 
-	# p3[0] = car_x + int(length)*cos(30)
-	# p3[1] = car_y + int(length)*sin(30)
-
-	# p4[0] = car_x + int(length)*cos(30)
-	# p4[1] = car_y + int(length)*sin(30)
+	angle = atan2(car_y - p4[1], p4[0] - car_x)
+	angle %= 2*pi 
+	# print degrees(angle)
+	p4[0] = car_x + int(length)*cos((radians(30)+angle)%2*pi)
+	p4[1] = car_y - int(length)*sin((radians(30)+angle)%2*pi)
+	pygame.draw.circle(screen, blue, (int(p4[0]), int(p4[1])), 5)
 
 	# p3[0] += length*cos(30)
 	# p3[1] -= length*sin(30)
