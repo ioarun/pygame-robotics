@@ -11,12 +11,12 @@ world_size = display_width
 red = (200, 0, 0)
 blue = (0, 0, 255)
 green = (0, 155, 0)
-yellow = (155, 155, 0)
+yellow = (200, 200, 0)
 white = (255, 255, 255)
 black = (0, 0, 0)
 
-car_length = 400
-car_width = 200
+car_length = 200
+car_width = 100
 
 car_img = pygame.image.load("car400_200.png")
 
@@ -100,33 +100,34 @@ def draw_robot(robot):
 
 	length = sqrt((p1[0] - car_x)**2 + (car_y - p1[1])**2)
 	angle = atan2(car_y - p2[1], p2[0] - car_x)
-	delta_angle = radians(30)
+	delta_angle = orientation
+
 	angle += delta_angle
-	pygame.draw.line(screen, blue, (int(p2[0]), int(p2[1])),(int(car_x), int(car_y)), 2)
+	# pygame.draw.line(screen, blue, (int(p2[0]), int(p2[1])),(int(car_x), int(car_y)), 2)
 	p2[0] = car_x + length*cos(angle)
 	p2[1] = car_y - length*sin(angle)
-	pygame.draw.line(screen, red, (int(p2[0]), int(p2[1])),(int(car_x), int(car_y)), 2)
+	# pygame.draw.line(screen, red, (int(p2[0]), int(p2[1])),(int(car_x), int(car_y)), 2)
 
 	angle = atan2(car_y - p1[1], p1[0] - car_x)
 	angle += delta_angle
-	pygame.draw.line(screen, blue, (int(p1[0]), int(p1[1])),(int(car_x), int(car_y)), 2)
+	#pygame.draw.line(screen, blue, (int(p1[0]), int(p1[1])),(int(car_x), int(car_y)), 2)
 	p1[0] = car_x + length*cos(angle)
 	p1[1] = car_y - length*sin(angle)
-	pygame.draw.line(screen, red, (int(p1[0]), int(p1[1])),(int(car_x), int(car_y)), 2)
+	#pygame.draw.line(screen, red, (int(p1[0]), int(p1[1])),(int(car_x), int(car_y)), 2)
 
 	angle = atan2(car_y - p4[1], p4[0] - car_x)
 	angle += delta_angle
-	pygame.draw.line(screen, blue, (int(p4[0]), int(p4[1])),(int(car_x), int(car_y)), 2)
+	#pygame.draw.line(screen, blue, (int(p4[0]), int(p4[1])),(int(car_x), int(car_y)), 2)
 	p4[0] = car_x + length*cos(angle)
 	p4[1] = car_y - length*sin(angle)
-	pygame.draw.line(screen, red, (int(p4[0]), int(p4[1])),(int(car_x), int(car_y)), 2)
+	#pygame.draw.line(screen, red, (int(p4[0]), int(p4[1])),(int(car_x), int(car_y)), 2)
 
 	angle = atan2(car_y - p3[1], p3[0] - car_x)
 	angle += delta_angle
-	pygame.draw.line(screen, blue, (int(p3[0]), int(p3[1])),(int(car_x), int(car_y)), 2)
+	#pygame.draw.line(screen, blue, (int(p3[0]), int(p3[1])),(int(car_x), int(car_y)), 2)
 	p3[0] = car_x + length*cos(angle)
 	p3[1] = car_y - length*sin(angle)
-	pygame.draw.line(screen, red, (int(p3[0]), int(p3[1])),(int(car_x), int(car_y)), 2)
+	#pygame.draw.line(screen, red, (int(p3[0]), int(p3[1])),(int(car_x), int(car_y)), 2)
 
 	
 	# pygame.draw.circle(screen, red, (int(p2[0]), int(p2[1])), 5)
@@ -170,6 +171,15 @@ def draw_robot(robot):
 	# # p4[1] -= length*sin(30)
 
 	rect = pygame.draw.polygon(screen, yellow, (p1,p2,p3,p4))
+
+	# heading direction
+	h = [car_x+car_length/2,car_y]
+	length = car_length/2
+	angle = atan2(car_y - h[1], h[0] - car_x)
+	angle += delta_angle
+	h[0] = car_x + length*cos(angle)
+	h[1] = car_y - length*sin(angle)
+	pygame.draw.line(screen, red, (h[0], h[1]),(int(car_x), int(car_y)), 1)
 
 	# draw wheels 	
 	# wheel_l = 100
