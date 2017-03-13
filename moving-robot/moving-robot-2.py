@@ -15,8 +15,11 @@ yellow = (200, 200, 0)
 white = (255, 255, 255)
 black = (0, 0, 0)
 
-car_length = 200
-car_width = 100
+car_length = 400
+car_width = 200
+
+wheel_length = 80
+wheel_width = 20
 
 car_img = pygame.image.load("car400_200.png")
 
@@ -84,111 +87,118 @@ class robot:
 		return Z
 
 
+def draw_rect(center, corners, rotation_angle, color):
+	c_x = center[0]
+	c_y = center[1]
+	delta_angle = rotation_angle
+	rotated_corners = []
+
+	for p in corners:
+		temp = []
+		length = sqrt((p[0] - c_x)**2 + (c_y - p[1])**2)
+		angle = atan2(c_y - p[1], p[0] - c_x)
+		angle += delta_angle
+		temp.append(c_x + length*cos(angle))
+		temp.append(c_y - length*sin(angle))
+		rotated_corners.append(temp)
+	
+	# draw rectangular polygon --> car body
+	rect = pygame.draw.polygon(screen, color, (rotated_corners[0],rotated_corners[1],rotated_corners[2],rotated_corners[3]))
+
+
 def draw_robot(robot):
 	car_x = robot.x 
 	car_y = robot.y 
 	orientation = robot.orientation
-	
-	# img = pygame.transform.rotate(car_img, 0)
-	# img = pygame.transform.rotate(car_img, orientation*180/pi)
-	# screen.blit(img, (car_x, car_y))
 
 	p1 = [car_x-car_length/2,car_y-car_width/2]
 	p2 = [car_x+car_length/2,car_y-car_width/2]
 	p3 = [car_x+car_length/2,car_y+car_width/2]
 	p4 = [car_x-car_length/2,car_y+car_width/2]
 
-	length = sqrt((p1[0] - car_x)**2 + (car_y - p1[1])**2)
-	angle = atan2(car_y - p2[1], p2[0] - car_x)
-	delta_angle = orientation
-
-	angle += delta_angle
-	# pygame.draw.line(screen, blue, (int(p2[0]), int(p2[1])),(int(car_x), int(car_y)), 2)
-	p2[0] = car_x + length*cos(angle)
-	p2[1] = car_y - length*sin(angle)
-	# pygame.draw.line(screen, red, (int(p2[0]), int(p2[1])),(int(car_x), int(car_y)), 2)
-
-	angle = atan2(car_y - p1[1], p1[0] - car_x)
-	angle += delta_angle
-	#pygame.draw.line(screen, blue, (int(p1[0]), int(p1[1])),(int(car_x), int(car_y)), 2)
-	p1[0] = car_x + length*cos(angle)
-	p1[1] = car_y - length*sin(angle)
-	#pygame.draw.line(screen, red, (int(p1[0]), int(p1[1])),(int(car_x), int(car_y)), 2)
-
-	angle = atan2(car_y - p4[1], p4[0] - car_x)
-	angle += delta_angle
-	#pygame.draw.line(screen, blue, (int(p4[0]), int(p4[1])),(int(car_x), int(car_y)), 2)
-	p4[0] = car_x + length*cos(angle)
-	p4[1] = car_y - length*sin(angle)
-	#pygame.draw.line(screen, red, (int(p4[0]), int(p4[1])),(int(car_x), int(car_y)), 2)
-
-	angle = atan2(car_y - p3[1], p3[0] - car_x)
-	angle += delta_angle
-	#pygame.draw.line(screen, blue, (int(p3[0]), int(p3[1])),(int(car_x), int(car_y)), 2)
-	p3[0] = car_x + length*cos(angle)
-	p3[1] = car_y - length*sin(angle)
-	#pygame.draw.line(screen, red, (int(p3[0]), int(p3[1])),(int(car_x), int(car_y)), 2)
-
-	
-	# pygame.draw.circle(screen, red, (int(p2[0]), int(p2[1])), 5)
-
-	# qx, qy = rotate([car_x, car_y], p2, radians(30))
-
-	# # distance of each corner from center of the rectangle
-	# # 
-	# 
-
-	# angle = atan2(car_y - p2[1], p2[0] - car_x)
-	# angle %= 2*pi 
-	# p2[0] = car_x + int(length)*cos((radians(90)+angle)%2*pi)
-	# p2[1] = car_y - int(length)*sin((radians(90)+angle)%2*pi)
-	# pygame.draw.circle(screen, blue, (int(p2[0]), int(p2[1])), 5)
-	
-	# angle = atan2(car_y - p1[1], p1[0] - car_x)
-	# angle %= 2*pi 
-	# p1[0] = car_x + int(length)*cos((radians(90)+angle)%2*pi)
-	# p1[1] = car_y - int(length)*sin((radians(90)+angle)%2*pi)
-
-	# pygame.draw.circle(screen, blue, (int(p1[0]), int(p1[1])), 5)
-
-	# angle = atan2(car_y - p3[1], p3[0] - car_x)
-	# angle %= 2*pi 
-	# print degrees(angle)
-	# p3[0] = car_x + int(length)*cos((radians(90)+angle)%2*pi)
-	# p3[1] = car_y - int(length)*sin((radians(90)+angle)%2*pi)
-
-	# angle = atan2(car_y - p4[1], p4[0] - car_x)
-	# angle %= 2*pi 
-	# # print degrees(angle)
-	# p4[0] = car_x + int(length)*cos((radians(90)+angle)%2*pi)
-	# p4[1] = car_y - int(length)*sin((radians(90)+angle)%2*pi)
-	# pygame.draw.circle(screen, blue, (int(p4[0]), int(p4[1])), 5)
-
-	# # p3[0] += length*cos(30)
-	# # p3[1] -= length*sin(30)
-
-	# # p4[0] += length*cos(30)
-	# # p4[1] -= length*sin(30)
-
-	rect = pygame.draw.polygon(screen, yellow, (p1,p2,p3,p4))
+	# car body
+	draw_rect([car_x, car_y], [p1, p2, p3, p4], orientation, yellow)
 
 	# heading direction
-	h = [car_x+car_length/2,car_y]
-	length = car_length/2
-	angle = atan2(car_y - h[1], h[0] - car_x)
-	angle += delta_angle
-	h[0] = car_x + length*cos(angle)
-	h[1] = car_y - length*sin(angle)
-	pygame.draw.line(screen, red, (h[0], h[1]),(int(car_x), int(car_y)), 1)
+	# h = [car_x+car_length/2,car_y]
+	# length = car_length/2
+	# angle = atan2(car_y - h[1], h[0] - car_x)
+	# angle += orientation
+	# h[0] = car_x + length*cos(angle)
+	# h[1] = car_y - length*sin(angle)
 
-	# draw wheels 	
-	# wheel_l = 100
-	# wheel_w = 20
-	# pygame.draw.rect(screen, black, (car_x - wheel_l, robot.y, wheel_l, wheel_w))
-	# # in radians
-	# print orientation
-	# # in degrees
-	# print orientation*180/pi
+	# wheels
+	# rotate center of wheel1
+	w1_c_x = car_x - car_length/4
+	w1_c_y = car_y - car_width/3
+	length = sqrt((w1_c_x - car_x)**2 + (car_y - w1_c_y)**2)
+	angle = atan2(car_y - w1_c_y, w1_c_x - car_x)
+	angle += orientation
+	w1_c_x = car_x + length*cos(angle)
+	w1_c_y = car_y - length*sin(angle)
+
+	# draw corners of wheel1
+	w1_p1 = [w1_c_x-wheel_length/2, w1_c_y-wheel_width/2]
+	w1_p2 = [w1_c_x+wheel_length/2, w1_c_y-wheel_width/2]
+	w1_p3 = [w1_c_x+wheel_length/2, w1_c_y+wheel_width/2]
+	w1_p4 = [w1_c_x-wheel_length/2, w1_c_y+wheel_width/2]
+	draw_rect([w1_c_x, w1_c_y], [w1_p1, w1_p2, w1_p3, w1_p4], orientation, black)
+
+
+
+
+
+	w2_c_x = car_x + car_length/4
+	w2_c_y = car_y - car_width/3
+	length = sqrt((w2_c_x - car_x)**2 + (car_y - w2_c_y)**2)
+	angle = atan2(car_y - w2_c_y, w2_c_x - car_x)
+	angle += orientation
+	w2_c_x = car_x + length*cos(angle)
+	w2_c_y = car_y - length*sin(angle)
+
+	w2_p1 = [w2_c_x-wheel_length/2, w2_c_y-wheel_width/2]
+	w2_p2 = [w2_c_x+wheel_length/2, w2_c_y-wheel_width/2]
+	w2_p3 = [w2_c_x+wheel_length/2, w2_c_y+wheel_width/2]
+	w2_p4 = [w2_c_x-wheel_length/2, w2_c_y+wheel_width/2]
+	draw_rect([w2_c_x, w2_c_y], [w2_p1, w2_p2, w2_p3, w2_p4], orientation, black)
+
+
+
+
+
+	w3_c_x = car_x + car_length/4
+	w3_c_y = car_y + car_width/3
+	length = sqrt((w3_c_x - car_x)**2 + (car_y - w3_c_y)**2)
+	angle = atan2(car_y - w3_c_y, w3_c_x - car_x)
+	angle += orientation
+	w3_c_x = car_x + length*cos(angle)
+	w3_c_y = car_y - length*sin(angle)
+
+	w3_p1 = [w3_c_x-wheel_length/2, w3_c_y-wheel_width/2]
+	w3_p2 = [w3_c_x+wheel_length/2, w3_c_y-wheel_width/2]
+	w3_p3 = [w3_c_x+wheel_length/2, w3_c_y+wheel_width/2]
+	w3_p4 = [w3_c_x-wheel_length/2, w3_c_y+wheel_width/2]
+	draw_rect([w3_c_x, w3_c_y], [w3_p1, w3_p2, w3_p3, w3_p4], orientation, black)
+
+
+
+
+
+	w4_c_x = car_x - car_length/4
+	w4_c_y = car_y + car_width/3
+	length = sqrt((w4_c_x - car_x)**2 + (car_y - w4_c_y)**2)
+	angle = atan2(car_y - w4_c_y, w4_c_x - car_x)
+	angle += orientation
+	w4_c_x = car_x + length*cos(angle)
+	w4_c_y = car_y - length*sin(angle)
+
+	w4_p1 = [w4_c_x-wheel_length/2, w4_c_y-wheel_width/2]
+	w4_p2 = [w4_c_x+wheel_length/2, w4_c_y-wheel_width/2]
+	w4_p3 = [w4_c_x+wheel_length/2, w4_c_y+wheel_width/2]
+	w4_p4 = [w4_c_x-wheel_length/2, w4_c_y+wheel_width/2]
+	draw_rect([w4_c_x, w4_c_y], [w4_p1, w4_p2, w4_p3, w4_p4], orientation, black)
+
+	# pygame.draw.line(screen, red, (h[0], h[1]),(int(car_x), int(car_y)), 1)
 
 	
 	
@@ -230,9 +240,9 @@ while exit == False:
 			elif event.key == pygame.K_RIGHT:
 				delta_orient = -0.0175
 			elif event.key == pygame.K_UP:
-				delta_forward = 1
+				delta_forward = 2
 			elif event.key == pygame.K_DOWN:
-				delta_forward = -1
+				delta_forward = -2
 		elif event.type == pygame.KEYUP:
 			if event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT or event.key == pygame.K_UP \
 			or event.key == pygame.K_DOWN:
