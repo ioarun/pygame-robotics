@@ -15,11 +15,13 @@ yellow = (200, 200, 0)
 white = (255, 255, 255)
 black = (0, 0, 0)
 
-car_length = 400
-car_width = 200
+car_length = 200.0
+car_width = 100.0
 
-wheel_length = 80
-wheel_width = 20
+wheel_length = 40
+wheel_width = 10
+
+max_steering_angle = pi/4
 
 car_img = pygame.image.load("car400_200.png")
 
@@ -38,21 +40,25 @@ class robot:
 		self.x = random.random()*world_size
 		self.y = random.random()*world_size
 		self.orientation = random.random() * 2.0 * pi
+		self.steering_angle = 0.0
 		self.forward_noise = 0.0
 		self.turn_noise	= 0.0
 		self.sense_noise = 0.0
 	
-	def set(self, x, y, orientation):
+	def set(self, x, y, orientation, steering_angle):
 		if x >= world_size or x < 0:
 			raise ValueError, 'X coordinate out of bound'
 		if y >= world_size or y < 0:
 			raise ValueError, 'Y coordinate out of bound'
 		if orientation >= 2*pi or orientation < 0:
 			raise ValueError, 'Orientation must be in [0..2pi]'
+		if abs(steering_angle) > max_steering_angle:
+		    raise ValueError, 'Exceeding max steering angle'
 
 		self.x = x
 		self.y = y
 		self.orientation = orientation
+		self.steering_angle = steering_angle
 
 
 	def set_noise(self, f_noise, t_noise, s_noise):
@@ -62,15 +68,41 @@ class robot:
 
 
 	def move(self, turn, forward):
-		if forward < 0:
-			raise ValueError, 'Cant move backwards'
+		theta = self.orientation # initial orientation
+		alpha = turn # steering angle
+		dist = forward # distance to be moved
+		length = car_length # length of the robot
+		if abs(alpha) > max_steering_angle:
+		    raise ValueError, 'Exceeding max steering angle'
 
-		self.orientation = self.orientation + turn + random.gauss(0.0, self.turn_noise)
-		self.orientation %= 2*pi
+		if dist < 0.0:
+		    raise ValueError, 'Moving backwards is not valid' 
 
-		dist = forward + random.gauss(0.0, self.forward_noise)
-		self.x = self.x + dist*cos(self.orientation)
-		self.y = self.y - dist*sin(self.orientation)
+		# in local coordinates of robot
+		beta = (dist/length)*tan(alpha) # turning angle
+		# print degrees(beta)
+		_x = _y = _theta = 0.0
+		if beta > 0.001 or beta < -0.001:
+		    radius = dist/beta # turning radius
+		    print radius
+		    cx = self.x - sin(theta)*radius # center of the circle
+		    cy = self.y - cos(theta)*radius # center of the circle
+
+
+		    # in global coordinates of robot
+		    _x = cx + sin(theta + beta)*radius
+		    _y = cy + cos(theta + beta)*radius
+		    _theta = (theta + beta)%(2*pi)
+
+		else: # straight motion
+		    _x = self.x + dist*cos(theta)
+		    _y = self.y - dist*sin(theta)
+		    _theta = (theta + beta)%(2*pi)
+
+		self.x = _x
+		self.y = _y
+		self.orientation = _theta
+		self.steering_angle = alpha
 
 		self.x %= world_size
 		self.y %= world_size
@@ -110,6 +142,7 @@ def draw_robot(robot):
 	car_x = robot.x 
 	car_y = robot.y 
 	orientation = robot.orientation
+	steering_angle = robot.steering_angle
 
 	p1 = [car_x-car_length/2,car_y-car_width/2]
 	p2 = [car_x+car_length/2,car_y-car_width/2]
@@ -160,7 +193,7 @@ def draw_robot(robot):
 	w2_p2 = [w2_c_x+wheel_length/2, w2_c_y-wheel_width/2]
 	w2_p3 = [w2_c_x+wheel_length/2, w2_c_y+wheel_width/2]
 	w2_p4 = [w2_c_x-wheel_length/2, w2_c_y+wheel_width/2]
-	draw_rect([w2_c_x, w2_c_y], [w2_p1, w2_p2, w2_p3, w2_p4], orientation, black)
+	draw_rect([w2_c_x, w2_c_y], [w2_p1, w2_p2, w2_p3, w2_p4], steering_angle, black)
 
 
 
@@ -178,7 +211,7 @@ def draw_robot(robot):
 	w3_p2 = [w3_c_x+wheel_length/2, w3_c_y-wheel_width/2]
 	w3_p3 = [w3_c_x+wheel_length/2, w3_c_y+wheel_width/2]
 	w3_p4 = [w3_c_x-wheel_length/2, w3_c_y+wheel_width/2]
-	draw_rect([w3_c_x, w3_c_y], [w3_p1, w3_p2, w3_p3, w3_p4], orientation, black)
+	draw_rect([w3_c_x, w3_c_y], [w3_p1, w3_p2, w3_p3, w3_p4], steering_angle, black)
 
 
 
@@ -207,15 +240,16 @@ landmarks_loc  = [[200, 200], [600, 600], [200, 600], [600, 200]]
 robot = robot()
 # robot.set_noise(0.1, 0.01, 5.0)
 
-orientation = 0
+orientation = 0.0
+steering_angle = 0.0
 #in radians
 orientation = orientation*pi/180
-robot.set(origin[0], origin[1], orientation)
+robot.set(origin[0], origin[1], orientation, steering_angle)
 
 exit = False
 
-delta_orient = 0.0
 delta_forward = 0.0
+delta_steer = 0.0
 
 while exit == False:
 
@@ -236,18 +270,23 @@ while exit == False:
 			exit = True
 		if event.type == pygame.KEYDOWN:
 			if event.key == pygame.K_LEFT:
-				delta_orient = 0.0175
+				delta_steer = radians(1)
 			elif event.key == pygame.K_RIGHT:
-				delta_orient = -0.0175
+				delta_steer = -radians(1)
 			elif event.key == pygame.K_UP:
-				delta_forward = 2
+				delta_forward = 2.0
 			elif event.key == pygame.K_DOWN:
-				delta_forward = -2
+				delta_forward = -2.0
 		elif event.type == pygame.KEYUP:
 			if event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT or event.key == pygame.K_UP \
 			or event.key == pygame.K_DOWN:
-				delta_orient = 0.0
+				delta_steer = 0.0
 				delta_forward = 0.0
 
-	robot.move(delta_orient, delta_forward)
+	steering_angle += delta_steer
+	if steering_angle > pi/4:
+		steering_angle = pi/4
+	elif steering_angle < -pi/4:
+		steering_angle = -pi/4
+	robot.move(steering_angle, delta_forward)
 	# print robot.sense(landmarks_loc)
