@@ -84,7 +84,6 @@ class robot:
 		_x = _y = _theta = 0.0
 		if beta > 0.001 or beta < -0.001:
 		    radius = dist/beta # turning radius
-		    print radius
 		    cx = self.x - sin(theta)*radius # center of the circle
 		    cy = self.y - cos(theta)*radius # center of the circle
 
@@ -117,6 +116,25 @@ class robot:
 			Z.append(dist)
 
 		return Z
+
+def draw_rect_wheel(center, corners, rotation_angle, color, robot):
+	c_x = center[0]
+	c_y = center[1]
+	delta_angle = rotation_angle
+	rotated_corners = []
+
+	for p in corners:
+		temp = []
+		length = sqrt((p[0] - c_x)**2 + (c_y - p[1])**2)
+		angle = atan2(c_y - p[1], p[0] - c_x)
+		angle += delta_angle
+		temp.append(c_x + length*cos(angle))
+		temp.append(c_y - length*sin(angle))
+		rotated_corners.append(temp)
+	
+	# draw rectangular polygon --> car body
+	rect = pygame.draw.polygon(screen, color, (rotated_corners[0],rotated_corners[1],rotated_corners[2],rotated_corners[3]))
+
 
 
 def draw_rect(center, corners, rotation_angle, color):
@@ -193,8 +211,8 @@ def draw_robot(robot):
 	w2_p2 = [w2_c_x+wheel_length/2, w2_c_y-wheel_width/2]
 	w2_p3 = [w2_c_x+wheel_length/2, w2_c_y+wheel_width/2]
 	w2_p4 = [w2_c_x-wheel_length/2, w2_c_y+wheel_width/2]
-	draw_rect([w2_c_x, w2_c_y], [w2_p1, w2_p2, w2_p3, w2_p4], steering_angle, black)
-
+	draw_rect_wheel([w2_c_x, w2_c_y], [w2_p1, w2_p2, w2_p3, w2_p4], steering_angle, black, robot)
+	# rect = pygame.draw.polygon(screen, black, (w2_p1,w2_p2,w2_p3,w2_p4))
 
 
 
@@ -212,6 +230,7 @@ def draw_robot(robot):
 	w3_p3 = [w3_c_x+wheel_length/2, w3_c_y+wheel_width/2]
 	w3_p4 = [w3_c_x-wheel_length/2, w3_c_y+wheel_width/2]
 	draw_rect([w3_c_x, w3_c_y], [w3_p1, w3_p2, w3_p3, w3_p4], steering_angle, black)
+	# rect = pygame.draw.polygon(screen, black, (w3_p1,w3_p2,w3_p3,w3_p4))
 
 
 
@@ -278,9 +297,9 @@ while exit == False:
 			elif event.key == pygame.K_DOWN:
 				delta_forward = -2.0
 		elif event.type == pygame.KEYUP:
-			if event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT or event.key == pygame.K_UP \
-			or event.key == pygame.K_DOWN:
+			if event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT:
 				delta_steer = 0.0
+			if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
 				delta_forward = 0.0
 
 	steering_angle += delta_steer
