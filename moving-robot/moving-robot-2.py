@@ -117,25 +117,6 @@ class robot:
 
 		return Z
 
-def draw_rect_wheel(center, corners, rotation_angle, color, robot):
-	c_x = center[0]
-	c_y = center[1]
-	delta_angle = rotation_angle
-	rotated_corners = []
-
-	for p in corners:
-		temp = []
-		length = sqrt((p[0] - c_x)**2 + (c_y - p[1])**2)
-		angle = atan2(c_y - p[1], p[0] - c_x)
-		angle += delta_angle
-		temp.append(c_x + length*cos(angle))
-		temp.append(c_y - length*sin(angle))
-		rotated_corners.append(temp)
-	
-	# draw rectangular polygon --> car body
-	rect = pygame.draw.polygon(screen, color, (rotated_corners[0],rotated_corners[1],rotated_corners[2],rotated_corners[3]))
-
-
 
 def draw_rect(center, corners, rotation_angle, color):
 	c_x = center[0]
@@ -211,7 +192,7 @@ def draw_robot(robot):
 	w2_p2 = [w2_c_x+wheel_length/2, w2_c_y-wheel_width/2]
 	w2_p3 = [w2_c_x+wheel_length/2, w2_c_y+wheel_width/2]
 	w2_p4 = [w2_c_x-wheel_length/2, w2_c_y+wheel_width/2]
-	draw_rect_wheel([w2_c_x, w2_c_y], [w2_p1, w2_p2, w2_p3, w2_p4], steering_angle, black, robot)
+	draw_rect([w2_c_x, w2_c_y], [w2_p1, w2_p2, w2_p3, w2_p4], steering_angle + orientation, black)
 	# rect = pygame.draw.polygon(screen, black, (w2_p1,w2_p2,w2_p3,w2_p4))
 
 
@@ -229,7 +210,7 @@ def draw_robot(robot):
 	w3_p2 = [w3_c_x+wheel_length/2, w3_c_y-wheel_width/2]
 	w3_p3 = [w3_c_x+wheel_length/2, w3_c_y+wheel_width/2]
 	w3_p4 = [w3_c_x-wheel_length/2, w3_c_y+wheel_width/2]
-	draw_rect([w3_c_x, w3_c_y], [w3_p1, w3_p2, w3_p3, w3_p4], steering_angle, black)
+	draw_rect([w3_c_x, w3_c_y], [w3_p1, w3_p2, w3_p3, w3_p4], steering_angle + orientation, black)
 	# rect = pygame.draw.polygon(screen, black, (w3_p1,w3_p2,w3_p3,w3_p4))
 
 
