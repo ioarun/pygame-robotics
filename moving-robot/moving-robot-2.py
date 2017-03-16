@@ -15,11 +15,11 @@ yellow = (200, 200, 0)
 white = (255, 255, 255)
 black = (0, 0, 0)
 
-car_length = 200.0
-car_width = 100.0
+car_length = 60.0
+car_width = 40.0
 
-wheel_length = 40
-wheel_width = 10
+wheel_length = 10
+wheel_width = 3
 
 max_steering_angle = pi/4
 
@@ -143,10 +143,10 @@ def draw_robot(robot):
 	orientation = robot.orientation
 	steering_angle = robot.steering_angle
 
-	p1 = [car_x-car_length/2,car_y-car_width/2]
-	p2 = [car_x+car_length/2,car_y-car_width/2]
-	p3 = [car_x+car_length/2,car_y+car_width/2]
-	p4 = [car_x-car_length/2,car_y+car_width/2]
+	p1 = [car_x-car_length/4,car_y-car_width/2]
+	p2 = [car_x+(0.75*car_length),car_y-car_width/2]
+	p3 = [car_x+(0.75*car_length),car_y+car_width/2]
+	p4 = [car_x-car_length/4,car_y+car_width/2]
 
 	# car body
 	draw_rect([car_x, car_y], [p1, p2, p3, p4], orientation, yellow)
@@ -161,7 +161,7 @@ def draw_robot(robot):
 
 	# wheels
 	# rotate center of wheel1
-	w1_c_x = car_x - car_length/4
+	w1_c_x = car_x
 	w1_c_y = car_y - car_width/3
 	length = sqrt((w1_c_x - car_x)**2 + (car_y - w1_c_y)**2)
 	angle = atan2(car_y - w1_c_y, w1_c_x - car_x)
@@ -180,7 +180,7 @@ def draw_robot(robot):
 
 
 
-	w2_c_x = car_x + car_length/4
+	w2_c_x = car_x + car_length/2
 	w2_c_y = car_y - car_width/3
 	length = sqrt((w2_c_x - car_x)**2 + (car_y - w2_c_y)**2)
 	angle = atan2(car_y - w2_c_y, w2_c_x - car_x)
@@ -198,7 +198,7 @@ def draw_robot(robot):
 
 
 
-	w3_c_x = car_x + car_length/4
+	w3_c_x = car_x + car_length/2
 	w3_c_y = car_y + car_width/3
 	length = sqrt((w3_c_x - car_x)**2 + (car_y - w3_c_y)**2)
 	angle = atan2(car_y - w3_c_y, w3_c_x - car_x)
@@ -215,9 +215,7 @@ def draw_robot(robot):
 
 
 
-
-
-	w4_c_x = car_x - car_length/4
+	w4_c_x = car_x
 	w4_c_y = car_y + car_width/3
 	length = sqrt((w4_c_x - car_x)**2 + (car_y - w4_c_y)**2)
 	angle = atan2(car_y - w4_c_y, w4_c_x - car_x)
@@ -274,9 +272,9 @@ while exit == False:
 			elif event.key == pygame.K_RIGHT:
 				delta_steer = -radians(1)
 			elif event.key == pygame.K_UP:
-				delta_forward = 2.0
+				delta_forward = 1.0
 			elif event.key == pygame.K_DOWN:
-				delta_forward = -2.0
+				delta_forward = -1.0
 		elif event.type == pygame.KEYUP:
 			if event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT:
 				delta_steer = 0.0
