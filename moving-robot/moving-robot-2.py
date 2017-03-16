@@ -41,6 +41,7 @@ class robot:
 		self.y = random.random()*world_size
 		self.orientation = random.random() * 2.0 * pi
 		self.steering_angle = 0.0
+		self.steering_drift = 0.0
 		self.forward_noise = 0.0
 		self.turn_noise	= 0.0
 		self.sense_noise = 0.0
@@ -59,6 +60,9 @@ class robot:
 		self.y = y
 		self.orientation = orientation
 		self.steering_angle = steering_angle
+
+	def set_steering_drift(self, steering_drift):
+		self.steering_drift = steering_drift
 
 
 	def set_noise(self, f_noise, t_noise, s_noise):
@@ -87,6 +91,9 @@ class robot:
 		    cx = self.x - sin(theta)*radius # center of the circle
 		    cy = self.y - cos(theta)*radius # center of the circle
 
+		    # draw the center of circle
+		    pygame.draw.circle(screen, red, (int(cx), int(cy)), 5)
+		    pygame.display.update()
 
 		    # in global coordinates of robot
 		    _x = cx + sin(theta + beta)*radius
@@ -242,7 +249,7 @@ orientation = 0.0
 steering_angle = 0.0
 #in radians
 orientation = orientation*pi/180
-robot.set(origin[0], origin[1], orientation, steering_angle)
+robot.set(origin[0], origin[1]-50, orientation, steering_angle)
 
 exit = False
 
@@ -261,7 +268,7 @@ while exit == False:
 	pygame.draw.line(screen, black, (0, display_height/2), (display_width, display_height/2), 1)
 
 	pygame.display.update()
-	clock.tick(60)
+	clock.tick(100)
 
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
@@ -286,5 +293,8 @@ while exit == False:
 		steering_angle = pi/4
 	elif steering_angle < -pi/4:
 		steering_angle = -pi/4
+
+	# p control
+	steering_angle = 0.01*(robot.y - origin[1])
 	robot.move(steering_angle, delta_forward)
 	# print robot.sense(landmarks_loc)
