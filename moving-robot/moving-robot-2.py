@@ -21,7 +21,7 @@ car_width = 40.0
 wheel_length = 10
 wheel_width = 3
 
-max_steering_angle = pi/4
+max_steering_angle = 3*pi/4
 
 car_img = pygame.image.load("car400_200.png")
 
@@ -123,6 +123,9 @@ class robot:
 			Z.append(dist)
 
 		return Z
+
+def pd(robot, diff_CTE):
+	return 0.01*(robot.y - origin[1]) + 0.05*diff_CTE
 
 
 def draw_rect(center, corners, rotation_angle, color):
@@ -238,6 +241,12 @@ def draw_robot(robot):
 
 	# pygame.draw.line(screen, red, (h[0], h[1]),(int(car_x), int(car_y)), 1)
 
+	# draw axle
+	pygame.draw.line(screen, black, (w1_c_x, w1_c_y),(w4_c_x, w4_c_y), 1)
+
+	# draw mid of axle
+	pygame.draw.circle(screen, red, (int(car_x), int(car_y)), 3)
+
 	
 	
 landmarks_loc  = [[200, 200], [600, 600], [200, 600], [600, 200]]
@@ -249,18 +258,22 @@ orientation = 0.0
 steering_angle = 0.0
 #in radians
 orientation = orientation*pi/180
-robot.set(origin[0], origin[1]-50, orientation, steering_angle)
+robot.set(origin[0] - 350, origin[1]-100, orientation, steering_angle)
 
 exit = False
 
 delta_forward = 0.0
 delta_steer = 0.0
 
+previous_CTE = robot.y - origin[1]
+CTE = robot.y - origin[1]
+int_crosstrack_error = 0.0
+
 while exit == False:
 
 	screen.fill(white)
-	for i in range(len(landmarks_loc)):
-		pygame.draw.circle(screen, blue, landmarks_loc[i], 20)
+	# for i in range(len(landmarks_loc)):
+	# 	pygame.draw.circle(screen, blue, landmarks_loc[i], 20)
 
 	draw_robot(robot)
 
@@ -279,9 +292,9 @@ while exit == False:
 			elif event.key == pygame.K_RIGHT:
 				delta_steer = -radians(1)
 			elif event.key == pygame.K_UP:
-				delta_forward = 1.0
+				delta_forward = 10.0
 			elif event.key == pygame.K_DOWN:
-				delta_forward = -1.0
+				delta_forward = -10.0
 		elif event.type == pygame.KEYUP:
 			if event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT:
 				delta_steer = 0.0
@@ -294,7 +307,11 @@ while exit == False:
 	elif steering_angle < -pi/4:
 		steering_angle = -pi/4
 
-	# p control
-	steering_angle = 0.01*(robot.y - origin[1])
+	# pd control
+	current_CTE = robot.y - origin[1]
+	int_crosstrack_error += current_CTE
+	diff_CTE = current_CTE - previous_CTE
+	steering_angle = pd(robot, diff_CTE)
+	previous_CTE = current_CTE
 	robot.move(steering_angle, delta_forward)
 	# print robot.sense(landmarks_loc)
