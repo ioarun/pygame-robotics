@@ -2,6 +2,7 @@ import pygame
 import random
 import time
 from math import *
+from copy import deepcopy
 
 display_width = 800
 display_height = 800
@@ -124,8 +125,51 @@ class robot:
 
 		return Z
 
+
+	def cte(self, radius):
+		cte = 0
+		x, y, orientation = self.x, self.y, self.orientation
+		print degrees(orientation)
+		if x <= 210:
+			dx = x - 210
+			dy = y - 400
+			cte = sqrt(dx**2+dy**2) - 200
+		elif 210 < x and x < 3 * 200:
+			if (0 <= orientation and orientation < pi/2) or \
+                    (3 * pi / 2 < orientation and orientation < 2 * pi):
+				cte = y - (2 * 200)
+			else:
+			    cte = -y
+		return cte
+
 def pd(robot, diff_CTE):
 	return 0.01*(robot.y - origin[1]) + 0.05*diff_CTE
+
+def draw_path(path, color):
+	pygame.draw.lines(screen, color, False, [(i[1], i[0]) for i in path], 4)
+	pygame.draw.line(screen, color, (path[0][1], path[0][0]),(path[len(path) - 1][1], path[len(path) - 1][0]), 4)
+
+def smoother(path, fix, weight_data = 0.2, weight_smooth = 0.2, tolerance = 0.00001):
+
+    change = tolerance
+    newpath = deepcopy(path)
+
+    while change >= tolerance:
+        change = 0
+        for i in range(len(path)):
+            for j in range(len(path[0])):
+                # d2 = weight_smooth*(newpath[(i-1)%len(path)][j] - 2*(newpath[i][j]) + newpath[(i+1)%len(path)][j]) \
+                # +(weight_smooth/2.0)*(2*newpath[(i-1)%len(path)][j] - newpath[(i-2)%len(path)][j] - newpath[i][j]) \
+                # +(weight_smooth/2.0)*(2*newpath[(i+1)%len(path)][j] - newpath[(i+2)%len(path)][j] - newpath[i][j])
+
+                # newpath[i][j] += d2
+                newpath[i][j] += weight_smooth*(newpath[(i-1)%len(path)][j] + newpath[(i+1)%len(path)][j] - 2.0*newpath[i][j]) + \
+                (weight_smooth / 2.0)*(2.0*newpath[(i-1)%len(path)][j] - newpath[(i-2)%len(path)][j] - newpath[i][j]) +\
+                (weight_smooth / 2.0)*(2.0*newpath[(i+1)%len(path)][j] - newpath[(i+2)%len(path)][j] - newpath[i][j])
+                # change += abs(d2)
+                # print change
+    
+    return newpath
 
 
 def draw_rect(center, corners, rotation_angle, color):
@@ -206,8 +250,6 @@ def draw_robot(robot):
 	# rect = pygame.draw.polygon(screen, black, (w2_p1,w2_p2,w2_p3,w2_p4))
 
 
-
-
 	w3_c_x = car_x + car_length/2
 	w3_c_y = car_y + car_width/3
 	length = sqrt((w3_c_x - car_x)**2 + (car_y - w3_c_y)**2)
@@ -247,34 +289,50 @@ def draw_robot(robot):
 	# draw mid of axle
 	pygame.draw.circle(screen, red, (int(car_x), int(car_y)), 3)
 
-	
-	
-landmarks_loc  = [[200, 200], [600, 600], [200, 600], [600, 200]]
+def draw_track(cx,cy,radius,color):
+	pygame.draw.arc(screen, red, (cx-radius/2,cy-radius/2,radius,radius), radians(90), radians(270), 5)
+	pygame.draw.line(screen, red, (cx, cy-radius/2), (cx+400, cy-radius/2), 5)
+	pygame.draw.arc(screen, red, (cx-radius/2+380,cy-radius/2,radius,radius), -pi/2,pi/2, 5)
+	pygame.draw.line(screen, red, (cx, cy+radius/2), (cx+400, cy+radius/2), 5)
+
+# col, row
+path  = [[200, 200],[200, 250],[200, 300], [200, 350],[200, 400],[200, 450],[200, 500],[200, 550],[200, 600],\
+[250, 600], [300, 600], [350, 600],[400, 600],[450, 600], [500, 600], [550, 600], [600, 600],[600, 550], [600, 500],[600, 450],[600, 400],\
+[600, 350],[600, 300],[600, 250],[600, 200], [550, 200],[500, 200],[450, 200],[400, 200], [350, 200],[300, 200],[250, 200]]
+
+fixed_pts = [0 for _ in range(len(path))]
+fixed_pts[0] = 1
+fixed_pts[4] = 1
+fixed_pts[8] = 1
+fixed_pts[12]= 1
 
 robot = robot()
 # robot.set_noise(0.1, 0.01, 5.0)
 
-orientation = 0.0
+orientation = 90.0
 steering_angle = 0.0
 #in radians
 orientation = orientation*pi/180
-robot.set(origin[0] - 350, origin[1]-100, orientation, steering_angle)
+robot.set(10, 400, orientation, steering_angle)
 
 exit = False
 
 delta_forward = 0.0
 delta_steer = 0.0
 
-previous_CTE = robot.y - origin[1]
-CTE = robot.y - origin[1]
+previous_CTE = robot.cte(200)
+CTE = robot.cte(200)
 int_crosstrack_error = 0.0
-
+crosstrack_error = robot.cte(200)
 while exit == False:
 
 	screen.fill(white)
 	# for i in range(len(landmarks_loc)):
-	# 	pygame.draw.circle(screen, blue, landmarks_loc[i], 20)
-
+	# pygame.draw.circle(screen, blue, landmarks_loc[i], 20)
+	draw_track(210, 400, 400, red)
+	# draw_path(path, black)
+	# smooth_path = smoother(path, fixed_pts)
+	# draw_path(smooth_path, green)
 	draw_robot(robot)
 
 	pygame.draw.line(screen, green, (display_width/2, 0), (display_width/2, display_height), 1)
@@ -302,16 +360,22 @@ while exit == False:
 				delta_forward = 0.0
 
 	steering_angle += delta_steer
+
+	# # pd control
+	# current_CTE = robot.cte(200)
+	# # int_crosstrack_error += current_CTE
+	# diff_CTE = current_CTE - previous_CTE
+	# steering_angle = pd(robot, diff_CTE)
+	# previous_CTE = current_CTE
+	diff_crosstrack_error = - crosstrack_error
+	crosstrack_error = robot.cte(200)
+	diff_crosstrack_error += crosstrack_error
+	int_crosstrack_error += crosstrack_error
+	steering_angle = - 0.01 * crosstrack_error \
+	        - 0.05 * diff_crosstrack_error
 	if steering_angle > pi/4:
 		steering_angle = pi/4
 	elif steering_angle < -pi/4:
 		steering_angle = -pi/4
-
-	# pd control
-	current_CTE = robot.y - origin[1]
-	int_crosstrack_error += current_CTE
-	diff_CTE = current_CTE - previous_CTE
-	steering_angle = pd(robot, diff_CTE)
-	previous_CTE = current_CTE
 	robot.move(steering_angle, delta_forward)
 	# print robot.sense(landmarks_loc)
